@@ -1,21 +1,21 @@
-<img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/project-hero.png" alt="node-ds18b20-sensor" width="100%" />
-
-<br />
 <div align="center">
-    <h1>node-ds18b20-sensor</h1>
-    <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/nodejs-logo.png" alt="Node.Js" height="120" />
+   <h1>node-ds18b20-sensor</h1>
+   <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/project-hero.png" alt="node-ds18b20-sensor" width="100%" />
    <h5>Read temperature sensor data and output result to various targets.</h5>
 </div>
 
 ### Introduction
-
 Read data from DS18B20 temperature sensor using Node.js® runtime and output the
 result into various targets. Currently, the following outputs are supported:
 - [InfluxDB](https://github.com/influxdata/influxdb) <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/influxdb-logo.png" height="10" />
 - Console ([npm/npmlog](https://github.com/npm/npmlog))
 
-### Requirements
+### About
 
+This is a personal project which I use in a house automation setup. Feel free to clone, fork and adjust it to your needs. If you have any question or want to add an additional output
+target feel free to create an issue or pull request.
+
+### Requirements
 * DS18B20 temperature sensor by [DIAMEX](https://www.diamex.de/dxshop/USB-Temperatur-Sensor-Tester-fuer-DS18B20-Rev-C)
 
 ### Preparations & setup
