@@ -15,8 +15,8 @@ result into various targets. Currently, the following outputs are supported:
 This is a personal project which I use in a house automation setup. Feel free to clone, fork and adjust it to your needs. If you have any question or want to add an additional output
 target feel free to create an issue or pull request.
 
-### Requirements
-* DS18B20 temperature sensor by [DIAMEX](https://www.diamex.de/dxshop/USB-Temperatur-Sensor-Tester-fuer-DS18B20-Rev-C)
+### Requirements/Hardware
+* DS18B20 temperature sensor by [DIAMEX](https://www.diamex.de/dxshop/USB-Temperatur-Sensor-Tester-fuer-DS18B20-Rev-C) with AT90USB162 microcontroller (got it on [amazon.de](https://www.amazon.de/-/en/DS18B20-Temperature-Interface-Temperature-DS18B20-Waterproof-Stainless/dp/B018GQN5HE))
 
 ### Preparations & setup
 
