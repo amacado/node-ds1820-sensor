@@ -3,9 +3,11 @@
 import ConfigurationManager from './helper/ConfigurationManager';
 import Log from './helper/Log';
 import * as hid from 'node-hid'
+
 import {Sensor} from './types/Sensor';
 import {SensorPower} from './enums/SensorPower';
 import {MeasuredTemperature} from './types/MeasuredTemperature';
+import InfluxDB2OutputService from './services/outputs/InfluxDB2OutputService';
 
 Log.verbose('', 'Import of libraries, types and classes completed.');
 
@@ -13,10 +15,11 @@ Log.verbose('', 'Import of libraries, types and classes completed.');
 
 Log.verbose('', 'Start loading configuration and default settings..');
 
-const ds18b20ManufacturerId:number = ConfigurationManager.get('ds18b20:manufacturerId');
-const ds18b20ProductId:number = ConfigurationManager.get('ds18b20:productId');
+const ds18b20ManufacturerId: number = ConfigurationManager.get('ds18b20:manufacturerId');
+const ds18b20ProductId: number = ConfigurationManager.get('ds18b20:productId');
 const driverType = ConfigurationManager.get('driver:type');
 const formatTemperature = ConfigurationManager.get('format:temperature');
+
 
 
 Log.verbose('', 'Loading configuration and default settings completed.');
@@ -39,7 +42,7 @@ function toHex(value: { toString: (arg0: number) => any; }) {
  * @param tempCelsius
  */
 function celsiusToFahrenheit(tempCelsius: number): number {
-    let tempFahrenheit = tempCelsius * 9/5 + 32
+    let tempFahrenheit = tempCelsius * 9 / 5 + 32
     return tempFahrenheit;
 }
 
@@ -51,10 +54,12 @@ function celsiusToFahrenheit(tempCelsius: number): number {
 async function startApplication() {
     Log.verbose('', 'Executing function %s', 'startApplication');
 
+
+
     hid.setDriverType(driverType); // When script runs on linux different driver types are available
     let hidDevices = hid.devices(ds18b20ManufacturerId, ds18b20ProductId); // Fetch list of available devices
 
-    if (hidDevices.length == 0)  {
+    if (hidDevices.length == 0) {
         Log.error('', 'No DS18B20 sensor found. Script execution aborted.')
         return
     }
@@ -83,19 +88,21 @@ async function startApplication() {
                 temp = temp / 10.0; // Temperature must be divided by 10 since it's representing a float value
 
                 // Read sensor id for precise identification
-                let sensorId:string = ''
+                let sensorId: string = ''
                 for (let i = 0x08; i < 0x10; i++) {
                     sensorId += toHex(dataBuffer[i]).toUpperCase() + " ";
                 }
                 sensorId = sensorId.trim();
 
-                let sensor: Sensor = { id: sensorId, power: sensorPower }
-                let measuredTemperature: MeasuredTemperature =  { sensor: sensor, temperature: temp }
+                let sensor: Sensor = {id: sensorId, power: sensorPower}
+                let measuredTemperature: MeasuredTemperature = {sensor: sensor, temperature: temp}
 
                 // Temperature has only a one decimal precision. "toFixed()" will
                 // make a pretty print for the temperature
                 Log.info(measuredTemperature.sensor.id, "%s°C reported by sensor %d of %d",
                     measuredTemperature.temperature.toFixed(1), sensorNo, sensorTotal);
+
+                InfluxDB2OutputService.saveMeasuredTemperatureAsync(measuredTemperature);
             })
         }
     });

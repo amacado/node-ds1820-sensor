@@ -21,6 +21,15 @@ nconf.defaults({
     },
     "format": {
         "temperature": "C" // Sensor returns measured temperature in °C, but it can be converted to °F
+    },
+    "output": {
+        "influxdb2": {
+            "enabled": false, // Enable/Disable influxdb2 output stream
+            "url": null, // URL of the InfluxDB webservice
+            "token": null, // Write access token for bucket
+            "organisation": null, // Name of the InfluxDB organisation
+            "bucket": null, // Name of the bucket where data is stored
+        }
     }
 });
 

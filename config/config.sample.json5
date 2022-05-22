@@ -13,5 +13,14 @@
   "format": {
     // Return measured temperature in Celsius (°C) or Fahrenheit (°F). Supported values are (C|F)
     "temperature": "C"
+  },
+  "output": {
+    "influxdb2": {
+      "enabled": false, // Enable/Disable influxdb2 output stream
+      "url": "string", // URL of the InfluxDB webservice
+      "token": "string", // Write access token for bucket
+      "organisation": "string", // Name of the InfluxDB organisation
+      "bucket": "string", // Name of the bucket where data is stored
+    }
   }
 }
