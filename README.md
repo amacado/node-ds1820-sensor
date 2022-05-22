@@ -1,14 +1,18 @@
-# node-ds18b20-sensor
+<img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/project-hero.png" alt="node-ds18b20-sensor" width="100%" />
 
 <br />
 <div align="center">
-    <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/ds18b20-logo.png" alt="DS18B20" height="120" />
+    <h1>node-ds18b20-sensor</h1>
     <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/nodejs-logo.png" alt="Node.Js" height="120" />
+   <h5>Read temperature sensor data and output result to various targets.</h5>
 </div>
 
 ### Introduction
 
-Read data from DS18B20 temperature sensor using Node.js® runtime
+Read data from DS18B20 temperature sensor using Node.js® runtime and output the
+result into various targets. Currently, the following outputs are supported:
+- [InfluxDB](https://github.com/influxdata/influxdb) <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/influxdb-logo.png" height="10" />
+- Console ([npm/npmlog](https://github.com/npm/npmlog))
 
 ### Requirements
 
@@ -17,6 +21,10 @@ Read data from DS18B20 temperature sensor using Node.js® runtime
 ### Preparations & setup
 
 #### Run the application
+
+1. Copy [`config/config.sample.json5`](/config/config.sample.json5), rename it to `/path/to/config.json5` (default `/config/config.json5`) and paste API credentials and pfSense® URI (see [json5.org](https://json5.org/) for more information about the this next level json project)
+2. Adjust settings in `config/config.json5` to your needs. The default values are defined in [`ConfigurationManager`](/src/helper/ConfigurationManager/index.ts)
+3. Execute `yarn serve`
 
 ### Development or 'Go build yourself'
 1. Install `yarn` package manager (see [yarnpkg.com](https://classic.yarnpkg.com/en/))
@@ -34,6 +42,7 @@ Read data from DS18B20 temperature sensor using Node.js® runtime
    
    exit 0
    ```
+
 
 ### Publishing new (npm package) version
 This project follows [Semantic Versioning 2.0.0](https://semver.org/) with the help of[`np`](https://www.npmjs.com/package/np) CLI tool
@@ -69,6 +78,9 @@ TypeError: cannot open device with path [...]
 If you're running this script in a docker container you might want to check the [bindings](https://forums.balena.io/t/docker-container-cannot-access-dynamically-plugged-usb-devices/4277) and
 `mount /dev:/dev` which allows the container to access the device.
 
+##### Wrong/Untrusted measurements
+
+Check your cable connection. 
 
 ### Credits
 
