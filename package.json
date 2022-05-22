@@ -1,5 +1,5 @@
 {
-  "name": "ds1820",
+  "name": "node-ds18b20-sensor",
   "version": "0.0.1",
   "private": false,
   "homepage": "https://github.com/amacado/node-ds18b20-sensor",

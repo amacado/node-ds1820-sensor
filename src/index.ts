@@ -27,42 +27,55 @@ function toHex(value: { toString: (arg0: number) => any; }) {
 
 //#region Script execution
 
-
-// Infinite loop to call the API and react on thresholds
-async function startApplication() {
+/**
+ * Infinite loop to read values from available sensors
+ */
+async function startApplication(driverType: 'hidraw' | 'libusb' = 'hidraw') {
     Log.verbose('', 'Executing function %s', 'startApplication');
 
     // Linux: choose driverType
-    // default is 'hidraw', can also be 'libusb'
-    if (process.argv[2]) {
-        hid.setDriverType('hidraw');
-    }
+    hid.setDriverType(driverType);
 
     const vendorId: number = 0x16C0; // from sample console app (main.c)
     const productId: number = 0x0480; // from sample console app (main.c)
 
     let hidDevices = hid.devices(vendorId, productId);
 
-    if(hidDevices.length == 0) Log.error('','No DS1820 device found')
+    if (hidDevices.length == 0) Log.error('', 'No DS18B20 sensor found')
 
+    Log.verbose('', 'Found %d DS18B20 devices:', hidDevices.length)
+    hidDevices.map((deviceInfo => {
+        Log.verbose(deviceInfo.serialNumber ? deviceInfo.serialNumber : '', "%s (%s): %s (%s) release %s (%s)",
+            deviceInfo.manufacturer, deviceInfo.vendorId, deviceInfo.product, deviceInfo.productId, deviceInfo.release, deviceInfo.path)
+    }))
+
+    // This loop might not work for multiple devices, untested yet
     hidDevices.forEach(function (deviceInfo) {
-        if( deviceInfo && deviceInfo.path) {
+        if (deviceInfo && deviceInfo.path) {
             var device = new hid.HID(deviceInfo.path);
-            device.on('data', function(dataBuffer: any) {
 
-                let temp = dataBuffer[4];
-                let sensorNo = dataBuffer[1];
-                let sensorTotal = dataBuffer[0];
-                let power = dataBuffer[2] ? "Extern" : "Parasite";
+            // Endless watcher event waiting for new data from device
+            device.on('data', function (dataBuffer: any) {
 
-                let sensorSerial = ''
+                let sensorTotal: number = dataBuffer[0];
+                let sensorNo: number = dataBuffer[1];
+                let power: string = dataBuffer[2] ? "Extern" : "Parasite";
+
+                // Read temperature from sensor
+                let temp: number = dataBuffer[4] + (256 * dataBuffer[5]); // Extracted from python demo (temptest.py)
+                temp = temp > 32767 ? (65536 - temp) * -1 : temp // when buffer show temp 32767 it's an indicator for minus degrees
+                temp = temp / 10.0; // Temperature must be divided by 10 since it's representing a float value
+
+                // Read sensor id for precise identification
+                let sensorId:string = ''
                 for (let i = 0x08; i < 0x10; i++) {
-                    sensorSerial += toHex(dataBuffer[i]).toUpperCase() + " ";
+                    sensorId += toHex(dataBuffer[i]).toUpperCase() + " ";
                 }
+                sensorId = sensorId.trim();
 
-                Log.info('',"Sensor %d of %d %f°C %s %s",
-                    sensorNo, sensorTotal, temp / 10.0, power, sensorSerial);
-            } )
+                Log.info(sensorId, "Sensor #%d of %d reports %f°C (%s powered)",
+                    sensorNo, sensorTotal, temp, power);
+            })
         }
     });
 
