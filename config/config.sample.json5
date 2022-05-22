@@ -1,5 +1,17 @@
 {
-  "ds1820": {
-
+  "ds18b20": {
+    // Manufacturer/Vendor id of the device (used for USB HID identification). Numeric value (hex and integer is supported)
+    "manufacturerId": 0x16C0,
+    // Product id of the device (used for USB HID identification). Numeric value (hex and integer is supported)
+    "productId": 0x0480
   },
+  "driver": {
+    // Choose which driver is used when app is running on linux. Valid values are (hidraw|libusb).
+    // See https://github.com/node-hid/node-hid#selecting-driver-type for more information about the driver types
+    "type": "hidraw"
+  },
+  "format": {
+    // Return measured temperature in Celsius (°C) or Fahrenheit (°F). Supported values are (C|F)
+    "temperature": "C"
+  }
 }

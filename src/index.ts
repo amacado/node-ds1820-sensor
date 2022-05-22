@@ -2,8 +2,10 @@
 
 import ConfigurationManager from './helper/ConfigurationManager';
 import Log from './helper/Log';
-import _, {forEach} from 'lodash';
 import * as hid from 'node-hid'
+import {Sensor} from './types/Sensor';
+import {SensorPower} from './enums/SensorPower';
+import {MeasuredTemperature} from './types/MeasuredTemperature';
 
 Log.verbose('', 'Import of libraries, types and classes completed.');
 
@@ -11,7 +13,11 @@ Log.verbose('', 'Import of libraries, types and classes completed.');
 
 Log.verbose('', 'Start loading configuration and default settings..');
 
-// load temperature thresholds and order them by ascending threshold to ensure the loop through those values work
+const ds18b20ManufacturerId:number = ConfigurationManager.get('ds18b20:manufacturerId');
+const ds18b20ProductId:number = ConfigurationManager.get('ds18b20:productId');
+const driverType = ConfigurationManager.get('driver:type');
+const formatTemperature = ConfigurationManager.get('format:temperature');
+
 
 Log.verbose('', 'Loading configuration and default settings completed.');
 
@@ -25,23 +31,33 @@ function toHex(value: { toString: (arg0: number) => any; }) {
     return hex;
 }
 
+/**
+ * Convert given temperature in celsius to
+ * temperature in fahrenheit
+ *
+ * @return number
+ * @param tempCelsius
+ */
+function celsiusToFahrenheit(tempCelsius: number): number {
+    let tempFahrenheit = tempCelsius * 9/5 + 32
+    return tempFahrenheit;
+}
+
 //#region Script execution
 
 /**
  * Infinite loop to read values from available sensors
  */
-async function startApplication(driverType: 'hidraw' | 'libusb' = 'hidraw') {
+async function startApplication() {
     Log.verbose('', 'Executing function %s', 'startApplication');
 
-    // Linux: choose driverType
-    hid.setDriverType(driverType);
+    hid.setDriverType(driverType); // When script runs on linux different driver types are available
+    let hidDevices = hid.devices(ds18b20ManufacturerId, ds18b20ProductId); // Fetch list of available devices
 
-    const vendorId: number = 0x16C0; // from sample console app (main.c)
-    const productId: number = 0x0480; // from sample console app (main.c)
-
-    let hidDevices = hid.devices(vendorId, productId);
-
-    if (hidDevices.length == 0) Log.error('', 'No DS18B20 sensor found')
+    if (hidDevices.length == 0)  {
+        Log.error('', 'No DS18B20 sensor found. Script execution aborted.')
+        return
+    }
 
     Log.verbose('', 'Found %d DS18B20 devices:', hidDevices.length)
     hidDevices.map((deviceInfo => {
@@ -59,7 +75,7 @@ async function startApplication(driverType: 'hidraw' | 'libusb' = 'hidraw') {
 
                 let sensorTotal: number = dataBuffer[0];
                 let sensorNo: number = dataBuffer[1];
-                let power: string = dataBuffer[2] ? "Extern" : "Parasite";
+                let sensorPower: SensorPower = dataBuffer[2] ? SensorPower.Extern : SensorPower.Parasite;
 
                 // Read temperature from sensor
                 let temp: number = dataBuffer[4] + (256 * dataBuffer[5]); // Extracted from python demo (temptest.py)
@@ -73,8 +89,13 @@ async function startApplication(driverType: 'hidraw' | 'libusb' = 'hidraw') {
                 }
                 sensorId = sensorId.trim();
 
-                Log.info(sensorId, "Sensor #%d of %d reports %f°C (%s powered)",
-                    sensorNo, sensorTotal, temp, power);
+                let sensor: Sensor = { id: sensorId, power: sensorPower }
+                let measuredTemperature: MeasuredTemperature =  { sensor: sensor, temperature: temp }
+
+                // Temperature has only a one decimal precision. "toFixed()" will
+                // make a pretty print for the temperature
+                Log.info(measuredTemperature.sensor.id, "%s°C reported by sensor %d of %d",
+                    measuredTemperature.temperature.toFixed(1), sensorNo, sensorTotal);
             })
         }
     });

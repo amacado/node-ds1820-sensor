@@ -12,8 +12,18 @@ nconf.file({file: configFile, format: require('json5')}); // load configuration 
 // default values for configuration (see config/config.sample.json5 for
 // parameter description
 nconf.defaults({
+    "ds18b20": {
+        "manufacturerId": 0x16C0,  // from sample console app source code (main.c) by led-genial.de
+        "productId": 0x0480, // from sample console app source code (main.c) by led-genial.de
+    },
+    "driver": {
+        "type": "hidraw" // Successor of libusb, see https://github.com/node-hid/node-hid#selecting-driver-type
+    },
+    "format": {
+        "temperature": "C" // Sensor returns measured temperature in °C, but it can be converted to °F
+    }
 });
 
-nconf.required([]);
+nconf.required(["ds18b20:manufacturerId", "ds18b20:productId", "driver:type"]);
 
 export = nconf;
