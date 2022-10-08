@@ -1,7 +1,7 @@
 <div align="center">
    <h1>node-ds18b20-sensor</h1>
    <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/project-hero.png" alt="node-ds18b20-sensor" width="100%" />
-   <h5>Read temperature sensor data and output result to various targets.</h5>
+   <h5>Read temperature sensor data and output result to various targets</h5>
 </div>
 
 ### Introduction
