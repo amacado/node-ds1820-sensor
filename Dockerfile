@@ -21,7 +21,7 @@ RUN git clone https://github.com/amacado/node-ds18b20-sensor.git ./
 # Install dependencies and build application
 RUN yarn install
 RUN yarn build
-CMD node ./dist/index.js
+ENTRYPOINT ["node", "./dist/index.js"]
 
 
 

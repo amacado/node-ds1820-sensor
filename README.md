@@ -10,6 +10,13 @@ result into various targets. Currently, the following outputs are supported:
 - [InfluxDB](https://github.com/influxdata/influxdb) <img src="https://raw.githubusercontent.com/amacado/node-ds18b20-sensor/main/docs/images/influxdb-logo.png" height="10" />
 - Console ([npm/npmlog](https://github.com/npm/npmlog))
 
+### Quickstart
+#### Docker (recommended: [docker-compose.yml](/docker-compose.yml))
+```
+docker pull ghcr.io/amacado/node-ds18b20-sensor:main
+```
+
+
 ### About
 This is a personal project which I use in a house automation setup. Feel free to clone, fork and adjust it to your needs. If you have any question or want to add an additional output
 target feel free to create an issue or pull request.
@@ -20,7 +27,6 @@ target feel free to create an issue or pull request.
 ### Preparations & setup
 
 #### Run the application
-
 1. Copy [`config/config.sample.json5`](/config/config.sample.json5), rename it to `/path/to/config.json5` (default `/config/config.json5`) and paste API credentials and pfSense® URI (see [json5.org](https://json5.org/) for more information about the this next level json project)
 2. Adjust settings in `config/config.json5` to your needs. The default values are defined in [`ConfigurationManager`](/src/helper/ConfigurationManager/index.ts)
 3. Execute `yarn serve`
@@ -41,19 +47,6 @@ target feel free to create an issue or pull request.
    
    exit 0
    ```
-
-### Publishing new (npm package) version
-This project follows [Semantic Versioning 2.0.0](https://semver.org/) with the help of[`np`](https://www.npmjs.com/package/np) CLI tool
-to ensure quality.
-```bash
-yarn global add np
-npm install np -g
-```
-
-Create a new version and publish (`np` is installed as dev-dependency):
-```bash
-np
-```
 
 ### Known problems
 ##### Error `libusb-1.0.so.0: cannot open shared object file`

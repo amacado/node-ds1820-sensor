@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+    sensor:
+        image: ghcr.io/amacado/node-ds18b20-sensor:main
+        privileged: true
+        tty: true
+        stdin_open: true
+        volumes:
+            - config:/app/config
+        devices:
+            - '/dev:/dev'
+        restart: unless-stopped
+volumes:
+    config: {}
