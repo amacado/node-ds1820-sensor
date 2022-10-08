@@ -8,6 +8,7 @@ import {Sensor} from './types/Sensor';
 import {SensorPower} from './enums/SensorPower';
 import {MeasuredTemperature} from './types/MeasuredTemperature';
 import InfluxDB2OutputService from './services/outputs/InfluxDB2OutputService';
+import {memoizeThrottle} from './helper/MemoizeThrottle';
 
 Log.verbose('', 'Import of libraries, types and classes completed.');
 
@@ -19,12 +20,29 @@ const ds18b20ManufacturerId: number = ConfigurationManager.get('ds18b20:manufact
 const ds18b20ProductId: number = ConfigurationManager.get('ds18b20:productId');
 const driverType = ConfigurationManager.get('driver:type');
 const formatTemperature = ConfigurationManager.get('format:temperature');
-
+const minimumOutputInterval = ConfigurationManager.get('output:settings:interval');
 
 
 Log.verbose('', 'Loading configuration and default settings completed.');
 
 //#endregion Configuration
+
+/**
+ * Throttle the output savings for measured temperatures per sensor.
+ * Setting a higher throttle prevents the output to be overflown by
+ * sensor data.
+ * The sensors' data is always read with maximum speed (as the sensor provides
+ * its data, but it's send to the output provides with a limited interval).
+ */
+const throttledSaveMeasuredTemperature = memoizeThrottle(
+    async (measuredTemperature: MeasuredTemperature) => {
+        // Add additional output services here
+        InfluxDB2OutputService.saveMeasuredTemperatureAsync(measuredTemperature);
+    },
+    minimumOutputInterval,
+    {},
+    (measuredTemperature) => measuredTemperature.sensor.id,
+);
 
 function toHex(value: { toString: (arg0: number) => any; }) {
     let hex = value.toString(16);
@@ -45,6 +63,7 @@ function celsiusToFahrenheit(tempCelsius: number): number {
     let tempFahrenheit = tempCelsius * 9 / 5 + 32
     return tempFahrenheit;
 }
+
 
 //#region Script execution
 
@@ -100,12 +119,15 @@ async function startApplication() {
                 Log.info(measuredTemperature.sensor.id, "%s°C reported by sensor %d of %d",
                     measuredTemperature.temperature.toFixed(1), sensorNo, sensorTotal);
 
-                InfluxDB2OutputService.saveMeasuredTemperatureAsync(measuredTemperature);
+                throttledSaveMeasuredTemperature(measuredTemperature)
+
             })
         }
     });
 
 }
+
+
 
 startApplication();
 

@@ -15,6 +15,9 @@
     "temperature": "C"
   },
   "output": {
+    "settings": {
+      interval: 300000 // set interval between temperature savings (per sensor) to output provides (interval is a throttling for the outputs); set to 0 for maximum data points
+    },
     "influxdb2": {
       "enabled": false, // Enable/Disable influxdb2 output stream
       "url": "string", // URL of the InfluxDB webservice

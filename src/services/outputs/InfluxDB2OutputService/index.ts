@@ -32,7 +32,9 @@ export default class InfluxDB2OutputService {
                 influxDBWriteApi
                     .close()
                     .then(() => {
-                        Log.verbose('InfluxDB2', 'Measure successfully transmitted to host');
+                        Log.verbose('InfluxDB2', 'Measured temperature %d°C by sensor %s successfully transmitted to host',
+                            measuredTemperature.temperature.toFixed(1),
+                            measuredTemperature.sensor.id);
                     })
                     .catch(e => {
                         Log.warn('InfluxDB2', e.toString())

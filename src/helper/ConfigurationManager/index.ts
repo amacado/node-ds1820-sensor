@@ -23,6 +23,9 @@ nconf.defaults({
         "temperature": "C" // Sensor returns measured temperature in °C, but it can be converted to °F
     },
     "output": {
+        "settings": {
+            "interval": 300000 // set interval to >5 minutes between temperature savings
+        },
         "influxdb2": {
             "enabled": false, // Enable/Disable influxdb2 output stream
             "url": null, // URL of the InfluxDB webservice
