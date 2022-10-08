@@ -1,7 +1,7 @@
 version: "3.9"
 services:
     sensor:
-        image: ghcr.io/amacado/node-ds18b20-sensor:main
+        image: ghcr.io/amacado/node-ds18b20-sensor:latest
         privileged: true
         tty: true
         stdin_open: true

@@ -32,7 +32,7 @@ export default class InfluxDB2OutputService {
                 influxDBWriteApi
                     .close()
                     .then(() => {
-                        Log.verbose('InfluxDB2', 'Measure successfully transmitted to database');
+                        Log.verbose('InfluxDB2', 'Measure successfully transmitted to host');
                     })
                     .catch(e => {
                         Log.warn('InfluxDB2', e.toString())
