@@ -54,8 +54,6 @@ function celsiusToFahrenheit(tempCelsius: number): number {
 async function startApplication() {
     Log.verbose('', 'Executing function %s', 'startApplication');
 
-
-
     hid.setDriverType(driverType); // When script runs on linux different driver types are available
     let hidDevices = hid.devices(ds18b20ManufacturerId, ds18b20ProductId); // Fetch list of available devices
 
