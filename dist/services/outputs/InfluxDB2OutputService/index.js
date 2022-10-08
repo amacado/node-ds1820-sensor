@@ -35,7 +35,7 @@ class InfluxDB2OutputService {
                     influxDBWriteApi
                         .close()
                         .then(() => {
-                        Log_1.default.verbose('InfluxDB2', 'Measure successfully transmitted to database');
+                        Log_1.default.verbose('InfluxDB2', 'Measure successfully transmitted to host');
                     })
                         .catch(e => {
                         Log_1.default.warn('InfluxDB2', e.toString());
