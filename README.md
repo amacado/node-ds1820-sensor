@@ -11,7 +11,6 @@ result into various targets. Currently, the following outputs are supported:
 - Console ([npm/npmlog](https://github.com/npm/npmlog))
 
 ### About
-
 This is a personal project which I use in a house automation setup. Feel free to clone, fork and adjust it to your needs. If you have any question or want to add an additional output
 target feel free to create an issue or pull request.
 
