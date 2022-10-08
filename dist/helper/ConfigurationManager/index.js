@@ -17,6 +17,9 @@ nconf.defaults({
         "temperature": "C"
     },
     "output": {
+        "settings": {
+            "interval": 300000
+        },
         "influxdb2": {
             "enabled": false,
             "url": null,

@@ -37,13 +37,18 @@ const Log_1 = __importDefault(require("./helper/Log"));
 const hid = __importStar(require("node-hid"));
 const SensorPower_1 = require("./enums/SensorPower");
 const InfluxDB2OutputService_1 = __importDefault(require("./services/outputs/InfluxDB2OutputService"));
+const MemoizeThrottle_1 = require("./helper/MemoizeThrottle");
 Log_1.default.verbose('', 'Import of libraries, types and classes completed.');
 Log_1.default.verbose('', 'Start loading configuration and default settings..');
 const ds18b20ManufacturerId = ConfigurationManager_1.default.get('ds18b20:manufacturerId');
 const ds18b20ProductId = ConfigurationManager_1.default.get('ds18b20:productId');
 const driverType = ConfigurationManager_1.default.get('driver:type');
 const formatTemperature = ConfigurationManager_1.default.get('format:temperature');
+const minimumOutputInterval = ConfigurationManager_1.default.get('output:settings:interval');
 Log_1.default.verbose('', 'Loading configuration and default settings completed.');
+const throttledSaveMeasuredTemperature = (0, MemoizeThrottle_1.memoizeThrottle)((measuredTemperature) => __awaiter(void 0, void 0, void 0, function* () {
+    InfluxDB2OutputService_1.default.saveMeasuredTemperatureAsync(measuredTemperature);
+}), minimumOutputInterval, {}, (measuredTemperature) => measuredTemperature.sensor.id);
 function toHex(value) {
     let hex = value.toString(16);
     if ((hex.length % 2) > 0) {
@@ -86,7 +91,7 @@ function startApplication() {
                     let sensor = { id: sensorId, power: sensorPower };
                     let measuredTemperature = { sensor: sensor, temperature: temp };
                     Log_1.default.info(measuredTemperature.sensor.id, "%s°C reported by sensor %d of %d", measuredTemperature.temperature.toFixed(1), sensorNo, sensorTotal);
-                    InfluxDB2OutputService_1.default.saveMeasuredTemperatureAsync(measuredTemperature);
+                    throttledSaveMeasuredTemperature(measuredTemperature);
                 });
             }
         });
