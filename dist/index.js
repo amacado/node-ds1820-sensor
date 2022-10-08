@@ -32,10 +32,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ConfigurationManager_1 = __importDefault(require("./helper/ConfigurationManager"));
 const Log_1 = __importDefault(require("./helper/Log"));
 const hid = __importStar(require("node-hid"));
+const SensorPower_1 = require("./enums/SensorPower");
+const InfluxDB2OutputService_1 = __importDefault(require("./services/outputs/InfluxDB2OutputService"));
 Log_1.default.verbose('', 'Import of libraries, types and classes completed.');
 Log_1.default.verbose('', 'Start loading configuration and default settings..');
+const ds18b20ManufacturerId = ConfigurationManager_1.default.get('ds18b20:manufacturerId');
+const ds18b20ProductId = ConfigurationManager_1.default.get('ds18b20:productId');
+const driverType = ConfigurationManager_1.default.get('driver:type');
+const formatTemperature = ConfigurationManager_1.default.get('format:temperature');
 Log_1.default.verbose('', 'Loading configuration and default settings completed.');
 function toHex(value) {
     let hex = value.toString(16);
@@ -44,30 +51,42 @@ function toHex(value) {
     }
     return hex;
 }
+function celsiusToFahrenheit(tempCelsius) {
+    let tempFahrenheit = tempCelsius * 9 / 5 + 32;
+    return tempFahrenheit;
+}
 function startApplication() {
     return __awaiter(this, void 0, void 0, function* () {
         Log_1.default.verbose('', 'Executing function %s', 'startApplication');
-        if (process.argv[2]) {
-            hid.setDriverType('hidraw');
+        hid.setDriverType(driverType);
+        let hidDevices = hid.devices(ds18b20ManufacturerId, ds18b20ProductId);
+        if (hidDevices.length == 0) {
+            Log_1.default.error('', 'No DS18B20 sensor found. Script execution aborted.');
+            return;
         }
-        const vendorId = 0x16C0;
-        const productId = 0x0480;
-        let hidDevices = hid.devices(vendorId, productId);
-        if (hidDevices.length == 0)
-            Log_1.default.error('', 'No DS1820 device found');
+        Log_1.default.verbose('', 'Found %d DS18B20 devices:', hidDevices.length);
+        hidDevices.map((deviceInfo => {
+            Log_1.default.verbose(deviceInfo.serialNumber ? deviceInfo.serialNumber : '', "%s (%s): %s (%s) release %s (%s)", deviceInfo.manufacturer, deviceInfo.vendorId, deviceInfo.product, deviceInfo.productId, deviceInfo.release, deviceInfo.path);
+        }));
         hidDevices.forEach(function (deviceInfo) {
             if (deviceInfo && deviceInfo.path) {
                 var device = new hid.HID(deviceInfo.path);
                 device.on('data', function (dataBuffer) {
-                    let temp = dataBuffer[4];
-                    let sensorNo = dataBuffer[1];
                     let sensorTotal = dataBuffer[0];
-                    let power = dataBuffer[2] ? "Extern" : "Parasite";
-                    let sensorSerial = '';
+                    let sensorNo = dataBuffer[1];
+                    let sensorPower = dataBuffer[2] ? SensorPower_1.SensorPower.Extern : SensorPower_1.SensorPower.Parasite;
+                    let temp = dataBuffer[4] + (256 * dataBuffer[5]);
+                    temp = temp > 32767 ? (65536 - temp) * -1 : temp;
+                    temp = temp / 10.0;
+                    let sensorId = '';
                     for (let i = 0x08; i < 0x10; i++) {
-                        sensorSerial += toHex(dataBuffer[i]).toUpperCase() + " ";
+                        sensorId += toHex(dataBuffer[i]).toUpperCase() + " ";
                     }
-                    Log_1.default.info('', "Sensor %d of %d %f°C %s %s", sensorNo, sensorTotal, temp / 10.0, power, sensorSerial);
+                    sensorId = sensorId.trim();
+                    let sensor = { id: sensorId, power: sensorPower };
+                    let measuredTemperature = { sensor: sensor, temperature: temp };
+                    Log_1.default.info(measuredTemperature.sensor.id, "%s°C reported by sensor %d of %d", measuredTemperature.temperature.toFixed(1), sensorNo, sensorTotal);
+                    InfluxDB2OutputService_1.default.saveMeasuredTemperatureAsync(measuredTemperature);
                 });
             }
         });

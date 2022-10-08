@@ -43,7 +43,6 @@ target feel free to create an issue or pull request.
    exit 0
    ```
 
-
 ### Publishing new (npm package) version
 This project follows [Semantic Versioning 2.0.0](https://semver.org/) with the help of[`np`](https://www.npmjs.com/package/np) CLI tool
 to ensure quality.
@@ -65,7 +64,6 @@ Error: libusb-1.0.so.0: cannot open shared object file: No such file or director
 ```
 
 This error occurs if you haven't installed [libusb](https://libusb.info/) driver `apt-get install libusb-1.0-0`.
-
 
 ##### Error `TypeError: cannot open device with path`
 
