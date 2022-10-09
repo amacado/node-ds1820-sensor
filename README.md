@@ -13,7 +13,7 @@ result into various targets. Currently, the following outputs are supported:
 ### Quickstart
 #### Docker (recommended: [docker-compose.yml](/docker-compose.yml))
 ```
-docker pull ghcr.io/amacado/node-ds18b20-sensor:main
+docker pull ghcr.io/amacado/node-ds18b20-sensor:latest
 ```
 
 
